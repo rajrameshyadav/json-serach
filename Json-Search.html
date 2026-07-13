@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match — JSON Filter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --klm-blue: #0077CD;
+    --klm-blue-dark: #005AA3;
+    --navy: #00205B;
+    --sky-tint: #EAF6FF;
+    --sky-tint-2: #F5FAFF;
+    --white: #FFFFFF;
+    --ink: #1A1A1A;
+    --muted: #5E6B7A;
+    --line: #DCE7F0;
+    --or-accent: #FF6A39;
+    --or-accent-dark: #E0522A;
+    --danger: #D6394A;
+    --radius: 16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sky-tint-2);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px;
+  }
+  .topbar{height:6px;background:linear-gradient(90deg, var(--klm-blue), #47B4EE);}
+  .wrap{max-width:1560px;margin:0 auto;padding:36px 48px 0;}
+  @media (max-width: 700px){.wrap{padding:24px 16px 0;}}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .mark{font-family:'Poppins', sans-serif;font-weight:800;font-size:23px;color:var(--navy);letter-spacing:-0.3px;}
+  .brand .tag{
+    font-family:'Inter', sans-serif;font-weight:600;font-size:11.5px;color:var(--klm-blue);
+    background:var(--sky-tint);border:1px solid #C7E4FA;padding:4px 12px;border-radius:999px;
+    text-transform:uppercase;letter-spacing:.4px;
+  }
+  header p{margin:0;color:var(--muted);font-size:14px;max-width:520px;line-height:1.5;}
+
+  .top-row{display:grid;grid-template-columns:minmax(360px, 1fr) minmax(480px, 1.3fr);gap:32px;align-items:stretch;margin-bottom:32px;}
+  @media (max-width: 980px){.top-row{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;box-shadow:0 2px 14px rgba(0,32,91,0.06);
+  }
+  .panel + .panel{margin-top:24px;}
+  .top-row > .panel + .panel{margin-top:0;}
+  #resultsPanel{margin-top:0;}
+  .panel h2{
+    font-family:'Poppins', sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.8px;color:var(--navy);margin:0 0 16px;
+  }
+
+  .input-panel{display:flex;flex-direction:column;}
+  .input-panel .row, .input-panel .status{flex-shrink:0;}
+
+  textarea{
+    width:100%;min-height:240px;flex:1 1 auto;resize:none;background:var(--sky-tint-2);color:var(--ink);
+    border:1.5px solid var(--line);border-radius:10px;padding:14px;
+    font-family:'IBM Plex Mono', monospace;font-size:13px;line-height:1.6;
+  }
+  textarea:focus, select:focus, input:focus, button:focus{
+    outline:none;border-color:var(--klm-blue);box-shadow:0 0 0 3px rgba(0,119,205,0.15);
+  }
+
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  button{
+    font-family:'Inter', sans-serif;font-size:13.5px;font-weight:600;padding:9px 18px;
+    border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--navy);
+    cursor:pointer;transition:all .15s ease;
+  }
+  button:hover{border-color:var(--klm-blue);color:var(--klm-blue);}
+  button:active{transform:scale(0.97);}
+  button.primary{background:var(--klm-blue);color:var(--white);border-color:var(--klm-blue);}
+  button.primary:hover{background:var(--klm-blue-dark);border-color:var(--klm-blue-dark);color:var(--white);}
+  button.ghost{background:var(--white);}
+  input[type=file]{display:none;}
+
+  .status{font-family:'Inter', sans-serif;font-size:12.5px;margin-top:10px;min-height:16px;font-weight:500;}
+  .status.ok{color:var(--klm-blue-dark);}
+  .status.error{
+    color:#8A1622;background:#FDEBEC;border:1.5px solid var(--danger);border-radius:8px;
+    padding:10px 12px;font-weight:600;line-height:1.5;
+  }
+
+  /* ---- Groups: OR'd together, conditions inside a group AND'd ---- */
+  .filter-group{
+    border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--sky-tint-2);margin-bottom:10px;
+  }
+  .filter-group-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .filter-group-head span{
+    font-family:'Inter', sans-serif;font-size:10.5px;font-weight:700;color:var(--klm-blue);
+    text-transform:uppercase;letter-spacing:.8px;
+  }
+  .icon-btn{background:none;border:none;color:var(--muted);font-size:16px;line-height:1;padding:2px 6px;cursor:pointer;border-radius:4px;}
+  .icon-btn:hover{color:var(--danger);background:rgba(214,57,74,0.08);}
+
+  .and-label{
+    font-family:'Inter', sans-serif;font-size:10.5px;font-weight:700;color:var(--klm-blue-dark);
+    text-align:center;margin:0 0 8px;letter-spacing:.6px;
+  }
+  .connector-row{display:flex;justify-content:center;margin:6px 0;}
+  .connector-toggle{
+    display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--white);
+  }
+  .conn-btn{
+    font-family:'Inter', sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;
+    padding:5px 15px;border:none;border-radius:0;background:transparent;color:var(--muted);cursor:pointer;
+  }
+  .conn-btn.active[data-conn="AND"], .conn-btn.active[data-gconn="AND"]{background:var(--klm-blue);color:var(--white);}
+  .conn-btn.active[data-conn="OR"], .conn-btn.active[data-gconn="OR"]{background:var(--or-accent);color:var(--white);}
+  .conn-btn:not(.active):hover{color:var(--navy);}
+  .group-connector-row{
+    display:flex;align-items:center;gap:12px;margin:14px 0 16px;
+  }
+  .group-connector-row::before, .group-connector-row::after{content:'';flex:1;height:1.5px;background:var(--line);}
+  .group-connector-row .connector-toggle{flex-shrink:0;}
+
+  .filter-condition-card{
+    background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;
+    display:grid;grid-template-columns:150px 1fr 32px;
+    gap:8px 10px;align-items:center;
+  }
+  .filter-condition-card .combo-wrap{grid-column:1 / -1;}
+  @media (max-width: 700px){
+    .filter-condition-card{grid-template-columns:1fr;}
+    .filter-condition-card .icon-btn{justify-self:start;}
+  }
+
+  /* searchable attribute combobox */
+  .combo-wrap{position:relative;}
+  .fc-key{
+    width:100%;padding:11px 14px;font-size:14.5px;font-weight:600;border-radius:9px;
+    border:2px solid var(--klm-blue);background:var(--white);color:var(--navy);
+    font-family:'Inter', sans-serif;text-overflow:ellipsis;
+  }
+  .fc-key.unknown{border-color:var(--danger);color:var(--danger);}
+  .combo-list{
+    position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;
+    background:var(--white);border:1.5px solid var(--klm-blue);border-radius:10px;
+    max-height:220px;overflow-y:auto;box-shadow:0 8px 20px rgba(0,32,91,0.15);
+  }
+  .combo-option{
+    padding:9px 14px;font-size:13.5px;font-family:'Inter', sans-serif;color:var(--ink);cursor:pointer;
+  }
+  .combo-option mark{background:#CFEBFF;color:var(--navy);border-radius:2px;padding:0 1px;}
+  .combo-option:hover, .combo-option.active{background:var(--sky-tint);}
+  .combo-empty{padding:9px 14px;font-size:12.5px;color:var(--muted);font-style:italic;}
+
+  .filter-condition-card select[data-role="op"], .filter-condition-card input[data-role="value"]{
+    padding:9px 11px;font-size:13px;border-radius:8px;border:1.5px solid var(--line);
+    background:var(--white);color:var(--ink);font-family:'Inter', sans-serif;width:100%;
+  }
+  .filter-condition-card input[data-role="value"]:disabled{opacity:.4;}
+  .filter-condition-card .icon-btn{justify-self:center;}
+
+  .add-cond-btn{font-size:13px;padding:8px 16px;width:100%;}
+  .empty-filters{font-family:'Inter', sans-serif;font-size:13px;color:var(--muted);padding:10px 2px;}
+
+  .query-preview-wrap{margin-bottom:18px;}
+  .query-preview{
+    font-family:'IBM Plex Mono', monospace;font-size:13px;line-height:1.7;color:var(--navy);
+    background:var(--sky-tint);border:1.5px solid var(--klm-blue);border-radius:10px;
+    padding:12px 16px;word-break:break-word;
+  }
+  .query-preview .q-and{color:var(--klm-blue-dark);font-weight:800;padding:0 2px;}
+  .query-preview .q-or{color:var(--or-accent-dark);font-weight:800;padding:0 2px;}
+  .query-preview .q-empty{color:var(--muted);font-style:italic;}
+  .query-preview .q-key{color:var(--navy);font-weight:700;}
+  .query-preview .q-val{color:var(--klm-blue-dark);}
+
+  .example-box{
+    background:var(--sky-tint);border:1px solid #C7E4FA;border-radius:12px;
+    padding:14px 16px;margin-bottom:16px;
+  }
+  .example-box .ex-label{
+    font-family:'Inter', sans-serif;font-size:10.5px;font-weight:800;color:var(--klm-blue-dark);
+    text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;
+  }
+  .example-box pre{
+    font-family:'IBM Plex Mono', monospace;font-size:11.5px;line-height:1.5;color:var(--navy);
+    background:var(--white);border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;margin:0 0 10px;overflow-x:auto;
+  }
+  .example-box .ex-goal{
+    font-size:12.5px;color:var(--ink);margin:0 0 8px;line-height:1.5;
+  }
+  .example-box .ex-step{
+    font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--navy);
+    background:var(--white);border:1px solid var(--line);border-radius:7px;
+    padding:6px 10px;margin-bottom:5px;
+  }
+  .example-box .ex-step:last-child{margin-bottom:0;}
+  .example-box .ex-or{
+    text-align:center;font-size:10.5px;font-weight:800;color:var(--or-accent-dark);
+    letter-spacing:1px;margin:2px 0;
+  }
+  .example-box .ex-note{
+    font-size:11.5px;color:var(--muted);margin:10px 0 0;line-height:1.5;
+  }
+  .example-box .ex-note code{
+    font-family:'IBM Plex Mono', monospace;background:var(--white);border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;
+  }
+
+  /* ---- Results ---- */
+  .results-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+  .hero-count{font-family:'Inter', sans-serif;}
+  .hero-count .num{font-family:'Poppins', sans-serif;font-size:44px;font-weight:800;color:var(--navy);line-height:1;}
+  .hero-count .of{font-size:15px;color:var(--muted);margin-left:6px;font-weight:500;}
+  .hero-count .label{font-size:11px;color:var(--klm-blue);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:4px;}
+  .progress-track{
+    background:var(--sky-tint);border-radius:999px;height:10px;border:1px solid var(--line);
+    overflow:hidden;margin-top:12px;width:260px;max-width:100%;
+  }
+  .progress-fill{
+    height:100%;width:0%;background:linear-gradient(90deg, var(--klm-blue), #47B4EE);
+    transition:width .5s cubic-bezier(.2,.8,.2,1);border-radius:999px;
+  }
+
+  .empty-state{text-align:center;padding:70px 20px;color:var(--muted);}
+  .empty-state .glyph{font-family:'Poppins', sans-serif;font-size:34px;font-weight:700;color:var(--klm-blue);margin-bottom:12px;}
+  .empty-state p{font-size:13.5px;max-width:340px;margin:6px auto 0;line-height:1.5;}
+
+  .record-list{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:14px;
+    max-height:680px;overflow-y:auto;padding:2px;
+  }
+  .record-item{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--white);
+    box-shadow:0 1px 4px rgba(0,32,91,0.04);transition:box-shadow .15s ease, border-color .15s ease;
+  }
+  .record-item:hover{border-color:var(--klm-blue);box-shadow:0 4px 12px rgba(0,32,91,0.08);}
+  .record-idx{
+    font-family:'Inter', sans-serif;font-size:10.5px;font-weight:700;color:var(--klm-blue);
+    margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;
+  }
+  .record-json{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin:0;}
+
+  footer{text-align:center;color:var(--muted);font-size:11.5px;font-family:'Inter', sans-serif;margin-top:48px;padding-bottom:20px;}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand">
+        <span class="mark">Sift</span>
+        <span class="tag">JSON filter</span>
+      </div>
+      <p>Paste any JSON array of records and build any combination of AND / OR conditions on their attributes. Runs entirely in your browser — nothing is uploaded anywhere.</p>
+    </div>
+  </header>
+
+  <div class="top-row">
+
+    <div class="panel input-panel">
+      <h2>1. Input</h2>
+      <textarea id="jsonInput" placeholder='[
+  {"status": "open", "owner": "amy"},
+  {"status": "closed", "owner": "raj"},
+  {"status": "open", "owner": "amy"}
+]'></textarea>
+      <div class="row">
+        <button class="primary" id="parseBtn">Submit</button>
+        <button class="ghost" id="sampleBtn">Load sample</button>
+        <button class="ghost" id="uploadBtn">Upload file</button>
+        <input type="file" id="fileInput" accept="application/json,.json,.txt">
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="panel" id="filtersPanel" style="display:none;">
+      <h2>2. Filters</h2>
+      <div class="query-preview-wrap">
+        <div class="ex-label" style="margin-bottom:6px;">Your filter, in plain terms</div>
+        <div class="query-preview" id="queryPreview">No filters yet — showing all records.</div>
+      </div>
+      <div class="example-box">
+        <div class="ex-label">Example — how to build a filter</div>
+        <pre>{
+  "status": "open",
+  "priority": "high",
+  "assignee": { "name": "Amy" }
+}</pre>
+        <p class="ex-goal">To find records where <b>status is open AND priority is high</b>, OR <b>the assignee is Amy</b>:</p>
+        <div class="ex-step">Group 1 → status <b>equals</b> open  <span style="color:var(--klm-blue-dark);">AND</span>  priority <b>equals</b> high</div>
+        <div class="ex-or">OR</div>
+        <div class="ex-step">Group 2 → assignee.name <b>equals</b> Amy</div>
+        <p class="ex-note">Type into the <b>Attribute</b> box to search for a field — start typing any part of its name and matches will appear. Nested fields use dot notation, e.g. <code>assignee.name</code>. Within a group you can mix AND and OR freely using the toggle between conditions, and when you add another group you can choose whether it combines with everything before it using AND or OR. Either way, conditions and groups apply in order from top to bottom — no hidden parentheses — so list everything you want AND'd together before switching to OR.</p>
+      </div>
+      <div id="filterGroups" style="max-height:640px;overflow-y:auto;padding-right:4px;"></div>
+      <div class="row">
+        <button class="primary" id="addGroupBtn">+ Add group</button>
+        <button class="ghost" id="clearFiltersBtn">Clear all</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel" id="resultsPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="glyph">{ }</div>
+      <p>Paste JSON above and click <b>Parse JSON</b> to get started. Then add filter groups to see which records match.</p>
+    </div>
+    <div id="resultsBody" style="display:none;">
+      <div class="results-head">
+        <div class="hero-count">
+          <span class="num" id="matchCount">0</span><span class="of" id="matchOf">of 0 records</span>
+          <div class="label">Match your filters</div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="row" style="margin-top:0;">
+          <button class="ghost" id="exportJsonBtn">Export matches (JSON)</button>
+          <button class="ghost" id="exportCsvBtn">Export matches (CSV)</button>
+        </div>
+      </div>
+      <div class="record-list" id="recordList"></div>
+    </div>
+  </div>
+
+  <footer>Everything runs client-side in your browser. No data leaves this page.</footer>
+</div>
+
+<script>
+(function(){
+  let records = [];
+  let discoveredKeys = [];
+  // filterGroups: array of groups. Groups are OR'd together.
+  // Each group is an array of conditions. Conditions within a group are AND'd.
+  // Each condition: {key, op, value}
+  let filterGroups = [];
+  let lastMatches = [];
+
+  const OPS = [
+    {v:'equals', label:'equals'},
+    {v:'not_equals', label:'not equals'},
+    {v:'contains', label:'contains'},
+    {v:'not_contains', label:'does not contain'},
+    {v:'is_empty', label:'is empty'},
+    {v:'is_not_empty', label:'is not empty'}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const jsonInput = $('jsonInput');
+  const statusEl = $('status');
+  const filtersPanel = $('filtersPanel');
+  const filterGroupsEl = $('filterGroups');
+  const emptyState = $('emptyState');
+  const resultsBody = $('resultsBody');
+
+  const SAMPLE = [
+    {"id":1,"status":"open","priority":"high","assignee":{"name":"Amy"},"tags":["bug","urgent"]},
+    {"id":2,"status":"closed","priority":"low","assignee":{"name":"Raj"},"tags":["chore"]},
+    {"id":3,"status":"open","priority":"high","assignee":{"name":"Amy"},"tags":["bug"]},
+    {"id":4,"status":"open","priority":"medium","assignee":{"name":"Ravi"},"tags":["feature","urgent"]},
+    {"id":5,"status":"closed","priority":"low","assignee":{"name":"Amy"},"tags":["chore","urgent"]},
+    {"id":6,"status":"open","priority":"high","assignee":{"name":"Raj"},"tags":["bug"]},
+    {"id":7,"status":"blocked","priority":"medium","assignee":{"name":"Ravi"},"tags":["feature"]}
+  ];
+
+  function setStatus(msg, type){
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function discoverKeys(recs){
+    const keys = new Set();
+    function walk(obj, prefix){
+      if(obj === null || typeof obj !== 'object'){ keys.add(prefix); return; }
+      if(Array.isArray(obj)){ keys.add(prefix); return; }
+      for(const k of Object.keys(obj)){
+        const path = prefix ? prefix + '.' + k : k;
+        const v = obj[k];
+        if(v !== null && typeof v === 'object' && !Array.isArray(v)) walk(v, path);
+        else keys.add(path);
+      }
+    }
+    recs.forEach(r => walk(r, ''));
+    keys.delete('');
+    return Array.from(keys).sort();
+  }
+
+  function getByPath(obj, path){
+    const parts = path.split('.');
+    let cur = obj;
+    for(const p of parts){
+      if(cur === null || cur === undefined) return undefined;
+      cur = cur[p];
+    }
+    return cur;
+  }
+
+  function normalizeToArray(parsed){
+    if(Array.isArray(parsed)) return parsed;
+    if(parsed && typeof parsed === 'object'){
+      for(const k of Object.keys(parsed)){
+        if(Array.isArray(parsed[k])) return parsed[k];
+      }
+      return [parsed];
+    }
+    throw new Error('JSON must be an array of records, or an object containing one.');
+  }
+
+  function stringifyVal(v){
+    if(v === undefined) return '(missing)';
+    if(v === null) return '(null)';
+    if(typeof v === 'object') return JSON.stringify(v);
+    return String(v);
+  }
+
+  function parseInput(text){
+    let parsed;
+    try{ parsed = JSON.parse(text); }
+    catch(e){ throw new Error('Invalid JSON: ' + e.message); }
+    const arr = normalizeToArray(parsed);
+    if(!arr.length) throw new Error('No records found in the JSON.');
+    return arr;
+  }
+
+  $('parseBtn').addEventListener('click', () => {
+    const text = jsonInput.value.trim();
+    if(!text){ setStatus('Paste some JSON first.', 'error'); return; }
+    try{
+      const parsedRecords = parseInput(text);
+      const keys = discoverKeys(parsedRecords);
+      if(!keys.length){
+        setStatus('⚠ Parsed, but no attributes were found in this JSON. Nothing was updated — still showing the previous data.', 'error');
+        return;
+      }
+      records = parsedRecords;
+      discoveredKeys = keys;
+      filtersPanel.style.display = 'block';
+      // Existing filters are kept and re-applied to the new data rather than
+      // reset — renderFilters() just refreshes attribute suggestions/validity.
+      renderFilters();
+      const filterNote = filterGroups.length ? ' Your existing filters were kept and re-applied.' : '';
+      setStatus(`Parsed ${records.length} record${records.length===1?'':'s'}, found ${keys.length} attribute${keys.length===1?'':'s'}.${filterNote}`, 'ok');
+      computeAndRender();
+    }catch(e){
+      setStatus(`⚠ ${e.message} — nothing was updated, still showing results from the last successful parse.`, 'error');
+    }
+  });
+
+  $('sampleBtn').addEventListener('click', () => {
+    jsonInput.value = JSON.stringify(SAMPLE, null, 2);
+    setStatus('Sample loaded. Click "Parse JSON".', '');
+  });
+
+  $('uploadBtn').addEventListener('click', () => $('fileInput').click());
+  $('fileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      jsonInput.value = evt.target.result;
+      setStatus('File loaded. Click "Parse JSON".', '');
+    };
+    reader.onerror = () => setStatus('Could not read that file.', 'error');
+    reader.readAsText(file);
+  });
+
+  // ---- Filter builder (groups can be AND'd or OR'd with each other; ----
+  // ---- conditions within a group can also be AND'd or OR'd with each other) ----
+
+  function newCondition(connector){
+    return {connector: connector || 'AND', key: '', op: 'equals', value: ''};
+  }
+
+  function newGroup(connector){
+    return {connector: connector || 'OR', conds: [newCondition('AND')]};
+  }
+
+  $('addGroupBtn').addEventListener('click', () => {
+    filterGroups.push(newGroup('OR'));
+    renderFilters();
+    computeAndRender();
+  });
+
+  $('clearFiltersBtn').addEventListener('click', () => {
+    filterGroups = [];
+    renderFilters();
+    computeAndRender();
+  });
+
+  function renderFilters(){
+    if(!filterGroups.length){
+      filterGroupsEl.innerHTML = '<div class="empty-filters">No filters yet — showing all records. Click "+ Add group" to start.</div>';
+      return;
+    }
+    let html = '';
+    filterGroups.forEach((group, gi) => {
+      if(gi > 0){
+        html += `<div class="group-connector-row">
+          <div class="connector-toggle">
+            <button class="conn-btn ${group.connector==='AND'?'active':''}" data-gconn="AND" data-gi="${gi}">AND</button>
+            <button class="conn-btn ${group.connector==='OR'?'active':''}" data-gconn="OR" data-gi="${gi}">OR</button>
+          </div>
+        </div>`;
+      }
+      html += `<div class="filter-group" data-gi="${gi}">
+        <div class="filter-group-head">
+          <span>Group ${gi+1}</span>
+          <button class="icon-btn" data-action="removeGroup" data-gi="${gi}" title="Remove group">✕</button>
+        </div>`;
+      group.conds.forEach((cond, ci) => {
+        if(ci > 0){
+          html += `<div class="connector-row" data-gi="${gi}" data-ci="${ci}">
+            <div class="connector-toggle">
+              <button class="conn-btn ${cond.connector==='AND'?'active':''}" data-conn="AND" data-gi="${gi}" data-ci="${ci}">AND</button>
+              <button class="conn-btn ${cond.connector==='OR'?'active':''}" data-conn="OR" data-gi="${gi}" data-ci="${ci}">OR</button>
+            </div>
+          </div>`;
+        }
+        html += renderCondition(gi, ci, cond);
+      });
+      html += `<button class="ghost add-cond-btn" data-action="addCond" data-gi="${gi}">+ Add condition to this group</button>
+      </div>`;
+    });
+    filterGroupsEl.innerHTML = html;
+    attachFilterEvents();
+  }
+
+  function renderCondition(gi, ci, cond){
+    const opOptions = OPS.map(o =>
+      `<option value="${o.v}" ${o.v===cond.op?'selected':''}>${o.label}</option>`
+    ).join('');
+    const valueDisabled = (cond.op === 'is_empty' || cond.op === 'is_not_empty');
+    const isKnown = !cond.key || discoveredKeys.includes(cond.key);
+    return `<div class="filter-condition-card" data-gi="${gi}" data-ci="${ci}">
+      <div class="combo-wrap" data-gi="${gi}" data-ci="${ci}">
+        <input class="fc-key${isKnown?'':' unknown'}" data-role="key" type="text" autocomplete="off"
+               placeholder="Search attribute..." value="${escapeHtml(cond.key)}" title="${escapeHtml(cond.key)}">
+        <div class="combo-list" data-gi="${gi}" data-ci="${ci}" hidden></div>
+      </div>
+      <select data-role="op">${opOptions}</select>
+      <input data-role="value" type="text" placeholder="value" value="${escapeHtml(String(cond.value))}" ${valueDisabled?'disabled':''}>
+      <button class="icon-btn" data-action="removeCond" data-gi="${gi}" data-ci="${ci}" title="Remove condition">✕</button>
+    </div>`;
+  }
+
+  function attachFilterEvents(){
+    filterGroupsEl.querySelectorAll('[data-action="removeGroup"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterGroups.splice(Number(btn.dataset.gi), 1);
+        renderFilters(); computeAndRender();
+      });
+    });
+    filterGroupsEl.querySelectorAll('[data-action="addCond"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterGroups[Number(btn.dataset.gi)].conds.push(newCondition('AND'));
+        renderFilters(); computeAndRender();
+      });
+    });
+    // group-level AND/OR toggle (how this group combines with everything before it)
+    filterGroupsEl.querySelectorAll('.conn-btn[data-gconn]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const gi = Number(btn.dataset.gi);
+        filterGroups[gi].connector = btn.dataset.gconn;
+        renderFilters(); computeAndRender();
+      });
+    });
+    // condition-level AND/OR toggle (within a single group)
+    filterGroupsEl.querySelectorAll('.conn-btn[data-conn]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const gi = Number(btn.dataset.gi), ci = Number(btn.dataset.ci);
+        filterGroups[gi].conds[ci].connector = btn.dataset.conn;
+        renderFilters(); computeAndRender();
+      });
+    });
+    filterGroupsEl.querySelectorAll('[data-action="removeCond"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const gi = Number(btn.dataset.gi), ci = Number(btn.dataset.ci);
+        filterGroups[gi].conds.splice(ci, 1);
+        if(!filterGroups[gi].conds.length) filterGroups.splice(gi, 1);
+        renderFilters(); computeAndRender();
+      });
+    });
+    filterGroupsEl.querySelectorAll('.filter-condition-card').forEach(row => {
+      const gi = Number(row.dataset.gi), ci = Number(row.dataset.ci);
+      row.querySelector('[data-role="op"]').addEventListener('change', e => {
+        filterGroups[gi].conds[ci].op = e.target.value;
+        renderFilters(); computeAndRender();
+      });
+      row.querySelector('[data-role="value"]').addEventListener('input', e => {
+        filterGroups[gi].conds[ci].value = e.target.value; computeAndRender();
+      });
+    });
+    filterGroupsEl.querySelectorAll('.combo-wrap').forEach(wrap => setupCombo(wrap));
+  }
+
+  // ---- Searchable attribute combobox ----
+  function setupCombo(wrap){
+    const gi = Number(wrap.dataset.gi), ci = Number(wrap.dataset.ci);
+    const input = wrap.querySelector('[data-role="key"]');
+    const list = wrap.querySelector('.combo-list');
+    let activeIdx = -1;
+    let currentMatches = [];
+
+    function highlight(text, query){
+      if(!query) return escapeHtml(text);
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if(idx === -1) return escapeHtml(text);
+      return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+query.length)) + '</mark>' + escapeHtml(text.slice(idx+query.length));
+    }
+
+    function openList(query){
+      const q = (query || '').trim();
+      currentMatches = q
+        ? discoveredKeys.filter(k => k.toLowerCase().includes(q.toLowerCase()))
+        : discoveredKeys.slice();
+      activeIdx = currentMatches.length ? 0 : -1;
+      renderList(q);
+      list.hidden = false;
+    }
+
+    function renderList(q){
+      if(!currentMatches.length){
+        list.innerHTML = '<div class="combo-empty">No matching attributes</div>';
+        return;
+      }
+      list.innerHTML = currentMatches.map((k, i) =>
+        `<div class="combo-option${i===activeIdx?' active':''}" data-value="${k.replace(/"/g,'&quot;')}">${highlight(k, q)}</div>`
+      ).join('');
+      list.querySelectorAll('.combo-option').forEach((opt) => {
+        opt.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          commit(opt.getAttribute('data-value'));
+        });
+      });
+    }
+
+    function commit(value){
+      input.value = value;
+      input.title = value;
+      input.classList.toggle('unknown', !!value && !discoveredKeys.includes(value));
+      filterGroups[gi].conds[ci].key = value;
+      list.hidden = true;
+      computeAndRender();
+    }
+
+    input.addEventListener('focus', () => openList(input.value));
+    input.addEventListener('input', () => {
+      openList(input.value);
+      input.title = input.value;
+      input.classList.toggle('unknown', !!input.value && !discoveredKeys.includes(input.value));
+      filterGroups[gi].conds[ci].key = input.value;
+      computeAndRender();
+    });
+    input.addEventListener('keydown', (e) => {
+      if(list.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')){ openList(input.value); return; }
+      if(e.key === 'ArrowDown'){
+        e.preventDefault();
+        if(currentMatches.length){ activeIdx = (activeIdx + 1) % currentMatches.length; renderList(input.value); }
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault();
+        if(currentMatches.length){ activeIdx = (activeIdx - 1 + currentMatches.length) % currentMatches.length; renderList(input.value); }
+      } else if(e.key === 'Enter'){
+        e.preventDefault();
+        if(activeIdx >= 0 && currentMatches[activeIdx]) commit(currentMatches[activeIdx]);
+        else list.hidden = true;
+      } else if(e.key === 'Escape'){
+        list.hidden = true;
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { list.hidden = true; }, 120);
+    });
+  }
+
+  function isEmptyVal(v){
+    return v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0);
+  }
+
+  function evaluateCondition(rec, cond){
+    const raw = getByPath(rec, cond.key);
+    const items = Array.isArray(raw) ? raw : [raw];
+
+    if(cond.op === 'is_empty') return isEmptyVal(raw);
+    if(cond.op === 'is_not_empty') return !isEmptyVal(raw);
+
+    const target = cond.value;
+    const targetLower = target.toLowerCase();
+
+    if(cond.op === 'equals'){
+      return items.some(it => stringifyVal(it) === target || stringifyVal(it).toLowerCase() === targetLower);
+    }
+    if(cond.op === 'not_equals'){
+      return !items.some(it => stringifyVal(it) === target || stringifyVal(it).toLowerCase() === targetLower);
+    }
+    if(cond.op === 'contains'){
+      return items.some(it => stringifyVal(it).toLowerCase().includes(targetLower));
+    }
+    if(cond.op === 'not_contains'){
+      return !items.some(it => stringifyVal(it).toLowerCase().includes(targetLower));
+    }
+    return true;
+  }
+
+  // Within a group, conditions are evaluated left to right using each
+  // condition's own connector (the first condition in a group has no connector).
+  // This lets a single group mix AND and OR freely.
+  function evaluateGroup(rec, conds){
+    if(!conds.length) return false;
+    let result = evaluateCondition(rec, conds[0]);
+    for(let i = 1; i < conds.length; i++){
+      const val = evaluateCondition(rec, conds[i]);
+      result = (conds[i].connector === 'OR') ? (result || val) : (result && val);
+    }
+    return result;
+  }
+
+  // Groups are folded together left to right too, using each group's own
+  // AND/OR connector (the first group's connector is unused).
+  function passesFilters(rec){
+    if(!filterGroups.length) return true;
+    let result = evaluateGroup(rec, filterGroups[0].conds);
+    for(let i = 1; i < filterGroups.length; i++){
+      const val = evaluateGroup(rec, filterGroups[i].conds);
+      result = (filterGroups[i].connector === 'AND') ? (result && val) : (result || val);
+    }
+    return result;
+  }
+
+  // ---- Live, human-readable preview of the current filter logic ----
+  const OP_TEXT = {
+    equals: '=', not_equals: '≠', contains: 'contains', not_contains: "doesn't contain"
+  };
+
+  function formatConditionText(cond){
+    const key = cond.key ? escapeHtml(cond.key) : '<span class="q-empty">(pick an attribute)</span>';
+    if(cond.op === 'is_empty') return `<span class="q-key">${key}</span> is empty`;
+    if(cond.op === 'is_not_empty') return `<span class="q-key">${key}</span> is not empty`;
+    const opText = OP_TEXT[cond.op] || '=';
+    const val = cond.value === '' ? '<span class="q-empty">…</span>' : `"<span class="q-val">${escapeHtml(cond.value)}</span>"`;
+    return `<span class="q-key">${key}</span> ${opText} ${val}`;
+  }
+
+  function buildGroupText(group){
+    if(!group.conds.length) return '';
+    const parts = group.conds.map((cond, ci) => {
+      const text = formatConditionText(cond);
+      if(ci === 0) return text;
+      return `<span class="q-${cond.connector.toLowerCase()}"> ${cond.connector} </span>${text}`;
+    });
+    const inner = parts.join('');
+    return group.conds.length > 1 ? `(${inner})` : inner;
+  }
+
+  function renderQueryPreview(){
+    const el = $('queryPreview');
+    if(!el) return;
+    if(!filterGroups.length){
+      el.innerHTML = '<span class="q-empty">No filters yet — showing all records.</span>';
+      return;
+    }
+    const parts = filterGroups.map((group, gi) => {
+      const text = buildGroupText(group);
+      if(gi === 0) return text;
+      return `<span class="q-${group.connector.toLowerCase()}"> ${group.connector} </span>${text}`;
+    });
+    el.innerHTML = parts.join('') || '<span class="q-empty">No conditions yet.</span>';
+  }
+
+  function computeAndRender(){
+    renderQueryPreview();
+    if(!records.length) return;
+    lastMatches = records.filter(passesFilters);
+    renderResults();
+  }
+
+  function renderResults(){
+    emptyState.style.display = 'none';
+    resultsBody.style.display = 'block';
+
+    const total = records.length;
+    const matched = lastMatches.length;
+    $('matchCount').textContent = matched;
+    $('matchOf').textContent = `of ${total} record${total===1?'':'s'}`;
+
+    const pct = total ? (matched/total)*100 : 0;
+    requestAnimationFrame(() => { $('progressFill').style.width = pct + '%'; });
+
+    const list = $('recordList');
+    if(!matched){
+      list.innerHTML = `<div class="record-item" style="grid-column:1/-1;text-align:center;padding:32px 16px;"><p class="record-json" style="color:var(--muted);">No records match the current filters.</p></div>`;
+      return;
+    }
+    list.innerHTML = lastMatches.map((rec, i) => {
+      return `<div class="record-item">
+        <div class="record-idx">#${i+1}</div>
+        <pre class="record-json">${escapeHtml(JSON.stringify(rec, null, 2))}</pre>
+      </div>`;
+    }).join('');
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  $('exportJsonBtn').addEventListener('click', () => {
+    downloadFile(JSON.stringify(lastMatches, null, 2), 'try-it-tool-search-matches.json', 'application/json');
+  });
+
+  $('exportCsvBtn').addEventListener('click', () => {
+    if(!lastMatches.length){ downloadFile('', 'try-it-tool-search-matches.csv', 'text/csv'); return; }
+    const cols = discoveredKeys;
+    let csv = cols.map(c => `"${c.replace(/"/g,'""')}"`).join(',') + '\n';
+    lastMatches.forEach(rec => {
+      csv += cols.map(c => {
+        const v = getByPath(rec, c);
+        const s = Array.isArray(v) ? v.map(stringifyVal).join('; ') : stringifyVal(v);
+        return `"${s.replace(/"/g,'""')}"`;
+      }).join(',') + '\n';
+    });
+    downloadFile(csv, 'try-it-tool-search-matches.csv', 'text/csv');
+  });
+
+  function downloadFile(content, filename, mime){
+    const blob = new Blob([content], {type: mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+})();
+</script>
+</body>
+</html>
