@@ -814,11 +814,11 @@
   }
 
   $('exportJsonBtn').addEventListener('click', () => {
-    downloadFile(JSON.stringify(lastMatches, null, 2), 'try-it-tool-search-matches.json', 'application/json');
+    downloadFile(JSON.stringify(lastMatches, null, 2), 'json-search-matches.json', 'application/json');
   });
 
   $('exportCsvBtn').addEventListener('click', () => {
-    if(!lastMatches.length){ downloadFile('', 'try-it-tool-search-matches.csv', 'text/csv'); return; }
+    if(!lastMatches.length){ downloadFile('', 'json-search-matches.csv', 'text/csv'); return; }
     const cols = discoveredKeys;
     let csv = cols.map(c => `"${c.replace(/"/g,'""')}"`).join(',') + '\n';
     lastMatches.forEach(rec => {
@@ -828,7 +828,7 @@
         return `"${s.replace(/"/g,'""')}"`;
       }).join(',') + '\n';
     });
-    downloadFile(csv, 'try-it-tool-search-matches.csv', 'text/csv');
+    downloadFile(csv, 'json-search-matches.csv', 'text/csv');
   });
 
   function downloadFile(content, filename, mime){
