@@ -298,7 +298,7 @@
   {"status": "open", "owner": "amy"}
 ]'></textarea>
       <div class="row">
-        <button class="primary" id="parseBtn">Parse JSON</button>
+        <button class="primary" id="parseBtn">Submit</button>
         <button class="ghost" id="sampleBtn">Load sample</button>
         <button class="ghost" id="uploadBtn">Upload file</button>
         <input type="file" id="fileInput" accept="application/json,.json,.txt">
@@ -347,7 +347,7 @@
   <div class="panel" id="resultsPanel">
     <div class="empty-state" id="emptyState">
       <div class="glyph">{ }</div>
-      <p>Paste JSON above and click <b>Parse JSON</b> to get started. Then add filter groups to see which records match.</p>
+      <p>Paste JSON above and click <b>Submit</b> to get started. Then add filter groups to see which records match.</p>
     </div>
     <div id="resultsBody" style="display:none;">
       <div class="results-head">
@@ -494,7 +494,7 @@
 
   $('sampleBtn').addEventListener('click', () => {
     jsonInput.value = JSON.stringify(SAMPLE, null, 2);
-    setStatus('Sample loaded. Click "Parse JSON".', '');
+    setStatus('Sample loaded. Click "Submit".', '');
   });
 
   $('uploadBtn').addEventListener('click', () => $('fileInput').click());
@@ -504,7 +504,7 @@
     const reader = new FileReader();
     reader.onload = evt => {
       jsonInput.value = evt.target.result;
-      setStatus('File loaded. Click "Parse JSON".', '');
+      setStatus('File loaded. Click "Submit".', '');
     };
     reader.onerror = () => setStatus('Could not read that file.', 'error');
     reader.readAsText(file);
@@ -968,11 +968,11 @@
   setupLookupCombo();
 
   $('exportJsonBtn').addEventListener('click', () => {
-    downloadFile(JSON.stringify(lastMatches, null, 2), 'try-it-tool-search-matches.json', 'application/json');
+    downloadFile(JSON.stringify(lastMatches, null, 2), 'search-matches.json', 'application/json');
   });
 
   $('exportCsvBtn').addEventListener('click', () => {
-    if(!lastMatches.length){ downloadFile('', 'try-it-tool-search-matches.csv', 'text/csv'); return; }
+    if(!lastMatches.length){ downloadFile('', 'search-matches.csv', 'text/csv'); return; }
     const cols = discoveredKeys;
     let csv = cols.map(c => `"${c.replace(/"/g,'""')}"`).join(',') + '\n';
     lastMatches.forEach(rec => {
@@ -982,7 +982,7 @@
         return `"${s.replace(/"/g,'""')}"`;
       }).join(',') + '\n';
     });
-    downloadFile(csv, 'try-it-tool-search-matches.csv', 'text/csv');
+    downloadFile(csv, 'search-matches.csv', 'text/csv');
   });
 
   function downloadFile(content, filename, mime){
