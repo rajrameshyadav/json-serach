@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Match — JSON Filter</title>
+<title>Match — Flight Data Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -272,6 +272,98 @@
   .record-json{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin:0;}
 
   footer{text-align:center;color:var(--muted);font-size:11.5px;font-family:'Inter', sans-serif;margin-top:48px;padding-bottom:20px;}
+
+  /* ---- Tabs ---- */
+  .tabs{display:flex;gap:8px;margin-bottom:28px;border-bottom:1.5px solid var(--line);}
+  .tab-btn{
+    font-family:'Poppins', sans-serif;font-size:13.5px;font-weight:700;letter-spacing:.2px;
+    padding:12px 20px;border:none;border-radius:10px 10px 0 0;background:transparent;color:var(--muted);
+    cursor:pointer;position:relative;top:1.5px;border-bottom:3px solid transparent;
+  }
+  .tab-btn:hover{color:var(--klm-blue);}
+  .tab-btn.active{color:var(--navy);border-bottom:3px solid var(--klm-blue);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* ---- Flight Leg Checker (Tab 2) ---- */
+
+  .fc-summary-banner{
+    border-radius:14px;padding:20px 24px;margin-bottom:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .fc-summary-banner.pass{background:#EAF8EF;border:1.5px solid #4FAE6E;}
+  .fc-summary-banner.fail{background:#FDEBEC;border:1.5px solid var(--danger);}
+  .fc-summary-banner .fc-badge{
+    font-family:'Poppins', sans-serif;font-weight:800;font-size:15px;padding:8px 18px;border-radius:999px;color:var(--white);
+    flex-shrink:0;
+  }
+  .fc-summary-banner.pass .fc-badge{background:#2E9E56;}
+  .fc-summary-banner.fail .fc-badge{background:var(--danger);}
+  .fc-summary-banner .fc-summary-text{font-family:'Inter', sans-serif;font-size:14.5px;color:var(--ink);line-height:1.5;}
+  .fc-summary-banner .fc-summary-text b{color:var(--navy);}
+
+  .fc-flight-card{
+    border:1.5px solid var(--line);border-radius:14px;background:var(--white);margin-bottom:18px;
+    box-shadow:0 2px 10px rgba(0,32,91,0.05);overflow:hidden;
+  }
+  .fc-flight-head{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    padding:16px 20px;background:var(--sky-tint-2);border-bottom:1.5px solid var(--line);
+  }
+  .fc-flight-title{font-family:'Poppins', sans-serif;font-size:16px;font-weight:800;color:var(--navy);}
+  .fc-flight-sub{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--muted);margin-top:2px;}
+  .fc-pill{
+    font-family:'Inter', sans-serif;font-weight:800;font-size:12px;letter-spacing:.4px;
+    padding:6px 16px;border-radius:999px;color:var(--white);text-transform:uppercase;
+  }
+  .fc-pill.pass{background:#2E9E56;}
+  .fc-pill.fail{background:var(--danger);}
+  .fc-checklist{padding:14px 20px 18px;}
+  .fc-check-row{
+    display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);
+  }
+  .fc-check-row:last-child{border-bottom:none;}
+  .fc-check-icon{
+    flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:var(--white);margin-top:1px;
+  }
+  .fc-check-icon.ok{background:#2E9E56;}
+  .fc-check-icon.bad{background:var(--danger);}
+  .fc-check-icon.skip{background:#B7C2CE;}
+  .fc-check-body .fc-check-title{font-family:'Inter', sans-serif;font-size:13.5px;font-weight:700;color:var(--navy);}
+  .fc-check-body .fc-check-desc{font-family:'Inter', sans-serif;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5;}
+  .fc-check-body .fc-check-desc code{
+    font-family:'IBM Plex Mono', monospace;background:var(--sky-tint);border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;font-size:11.5px;
+  }
+  .fc-dup-note{
+    font-family:'Inter', sans-serif;font-size:12.5px;color:var(--klm-blue-dark);background:var(--sky-tint);
+    border:1px solid #C7E4FA;border-radius:10px;padding:10px 14px;margin-bottom:18px;line-height:1.5;
+  }
+
+  .fc-status-card{
+    margin:0 20px 18px;padding:14px 16px;background:var(--sky-tint-2);border:1.5px solid var(--line);
+    border-radius:12px;
+  }
+  .fc-status-title{
+    font-family:'Inter', sans-serif;font-size:11.5px;font-weight:800;color:var(--navy);
+    text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;
+  }
+  .fc-status-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;}
+  .fc-status-row + .fc-status-row{border-top:1px solid var(--line);}
+  .fc-status-icon{
+    flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:var(--white);margin-top:1px;
+  }
+  .fc-status-icon.ok{background:#2E9E56;}
+  .fc-status-icon.warn{background:var(--or-accent-dark);}
+  .fc-status-icon.skip{background:#B7C2CE;}
+  .fc-delay-line{
+    font-family:'Inter', sans-serif;font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.6;
+  }
+  .fc-delay-line code{
+    font-family:'IBM Plex Mono', monospace;background:var(--white);border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;font-size:11.5px;color:var(--navy);
+  }
 </style>
 </head>
 <body>
@@ -282,11 +374,18 @@
     <div>
       <div class="brand">
         <span class="mark">Match</span>
-        <span class="tag">JSON filter</span>
+        <span class="tag">Flight data tools</span>
       </div>
-      <p>Paste any JSON array of records and build any combination of AND / OR conditions on their attributes. Runs entirely in your browser — nothing is uploaded anywhere.</p>
+      <p>Filter and inspect flight JSON, and check whether a flight would be picked up for further processing. Runs entirely in your browser — nothing is uploaded anywhere.</p>
     </div>
   </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtn1" data-tab="1">JSON Filter</button>
+    <button class="tab-btn" id="tabBtn2" data-tab="2">Flight Leg Checker</button>
+  </div>
+
+  <div class="tab-panel active" id="tabPanel1">
 
   <div class="top-row">
 
@@ -364,6 +463,43 @@
       <div class="record-list" id="recordList"></div>
     </div>
   </div>
+
+  </div>
+  <!-- /tabPanel1 -->
+
+  <div class="tab-panel" id="tabPanel2">
+
+  <div class="panel example-box" style="margin-bottom:24px;">
+    <div class="ex-label">What checks will be applied</div>
+    <p class="ex-goal" style="margin-bottom:12px;">Every flight you paste in is run through these 5 checks, <b>in this order</b>. As soon as a flight fails one, it's excluded and the remaining checks are skipped for it (a flight only ever gets <b>one</b> reason for being filtered out) — this matches exactly how the real system decides which flights to process further.</p>
+    <div class="ex-step">1. <b>Airline check</b> — Is the flight operated by one of the customer's own airlines (currently <code>KL, AF, DL, AM, CI, MU, CZ, A9, KQ, MF, HV</code>)? If not, it's dropped straight away.</div>
+    <div class="ex-step">2. <b>KL high-number check</b> — Is it a KL flight with a flight number of 9000 or higher? These are treated as non-passenger / placeholder flights and are always excluded.</div>
+    <div class="ex-step">3. <b>Amsterdam check</b> — Does the flight depart from AMS or arrive at AMS? If it touches neither, it isn't relevant to us and is dropped.</div>
+    <div class="ex-step">4. <b>Cancelled + excluded-airport check</b> — If the flight is cancelled (and the cancellation happened within 14 days of the scheduled time), is its departure or arrival airport on the excluded-airports list (currently <code>MSP, SLC, DTW, JFK, DBV, SPU, ZAG</code>)? If so, it's dropped. This check is skipped for flights that aren't cancelled.</div>
+    <div class="ex-step">5. <b>"Today" check</b> — Is the flight actually scheduled for today, from Amsterdam's point of view? This covers flights departing AMS today, flights arriving at AMS today, and overnight flights that left yesterday but land in AMS today. If none of that matches, the flight is dropped as not relevant to today.</div>
+    <p class="ex-note">A flight only carries on to further processing if it clears <b>all five</b> checks. Before any of this runs, exact duplicate flights (same airline, flight number, departure date, departure airport and suffix) are quietly removed so they're only counted once. <b>All dates and times in your JSON are treated as UTC and are converted into Amsterdam local time (CET in winter, CEST in summer) before any date comparison is made</b> — so a flight timestamped late at night in UTC may correctly fall on the next calendar day once checked, and vice versa. Each result also shows a <b>Flight status</b> panel noting whether the flight is cancelled and whether it's delayed <b>from AMS's point of view</b> — delay is only reported for the AMS end of the flight (its departure if it departs AMS, its arrival if it arrives at AMS), not for the other end of the flight — including the exact attribute, its value in Amsterdam time, and how many hours/minutes late it is. This is extra information only and doesn't affect the pass/fail outcome above (except where cancellation is part of check 4).</p>
+  </div>
+
+  <div class="panel">
+    <h2>1. Paste the flight response</h2>
+    <p class="lookup-hint">Paste a full <code>FlightLegListDataResponse</code> (an object with a <code>flightLegData</code> array), a plain array of flights, or a single flight object. Everything runs in your browser — nothing is uploaded anywhere.</p>
+    <textarea id="fcInput" placeholder='Paste your flight JSON here...'></textarea>
+    <div class="row">
+      <button class="primary" id="fcCheckBtn">Check flight(s)</button>
+      <button class="ghost" id="fcSampleBtn">Load sample</button>
+      <button class="ghost" id="fcClearBtn">Clear</button>
+    </div>
+    <div class="status" id="fcStatus"></div>
+  </div>
+
+  <div class="panel" id="fcResultsPanel" style="display:none;">
+    <h2>2. Result — will this flight be picked up?</h2>
+    <div id="fcDupNote"></div>
+    <div id="fcResultsList"></div>
+  </div>
+
+  </div>
+  <!-- /tabPanel2 -->
 
   <footer>Everything runs client-side in your browser. No data leaves this page.</footer>
 </div>
@@ -994,6 +1130,528 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
+
+  // =========================================================================
+  // ---- Tabs ----
+  // =========================================================================
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      $('tabPanel' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // =========================================================================
+  // ---- Tab 2: Flight Leg Checker ----
+  // Re-implements the logic of FlightLegUtils.filterAndDeduplicateFlightLegsForCustomerAndAms
+  // (plus isCancelled) in plain JS, and explains the outcome in BPA-friendly language.
+  // =========================================================================
+  (function(){
+    const fcInput = $('fcInput');
+    const fcStatus = $('fcStatus');
+    const fcResultsPanel = $('fcResultsPanel');
+    const fcResultsList = $('fcResultsList');
+    const fcDupNote = $('fcDupNote');
+
+    // Fixed defaults (the customization UI for these is removed for now).
+    const FC_ALLOWED_CARRIERS = ['KL', 'AF', 'DL', 'AM', 'CI', 'MU', 'CZ', 'A9', 'KQ', 'MF', 'HV'];
+    const FC_EXCLUDED_AIRPORTS = ['MSP', 'SLC', 'DTW', 'JFK', 'DBV', 'SPU', 'ZAG'];
+
+    // ---- Sample data: one flight that should PASS, one that should FAIL ----
+    function fcBuildSample(todayStr){
+      return {
+        "flightLegData": [
+          {
+            "carrier": "KL",
+            "flightNumber": 1234,
+            "suffix": null,
+            "departureAirportCode": "AMS",
+            "arrivalAirportCode": "LHR",
+            "headStationDepartureDateUTC": todayStr,
+            "flightCancelled": false,
+            "timestamps": {
+              "scheduledDepartureTime": todayStr + "T09:00:00Z",
+              "scheduledArrivalTime": todayStr + "T10:15:00Z"
+            }
+          },
+          {
+            "carrier": "BA",
+            "flightNumber": 456,
+            "suffix": null,
+            "departureAirportCode": "LHR",
+            "arrivalAirportCode": "AMS",
+            "headStationDepartureDateUTC": todayStr,
+            "flightCancelled": false,
+            "timestamps": {
+              "scheduledDepartureTime": todayStr + "T08:00:00Z",
+              "scheduledArrivalTime": todayStr + "T09:20:00Z"
+            }
+          }
+        ]
+      };
+    }
+
+    function fcAmsToday(){
+      // Amsterdam local date, formatted YYYY-MM-DD, using the Intl API (DST-safe).
+      const fmt = new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Amsterdam', year:'numeric', month:'2-digit', day:'2-digit'});
+      return fmt.format(new Date()); // en-CA gives YYYY-MM-DD
+    }
+
+    function fcAddDays(dateStr, delta){
+      const d = new Date(dateStr + 'T00:00:00Z');
+      d.setUTCDate(d.getUTCDate() + delta);
+      return d.toISOString().slice(0,10);
+    }
+
+    // Converts a UTC timestamp (as sent by the source system) into its calendar date
+    // in Europe/Amsterdam local time (CET in winter, CEST in summer — DST-aware).
+    // This is applied to every date field BEFORE any of the checks run, since the
+    // source data is in UTC but "today"/"yesterday" and all comparisons are in
+    // Amsterdam local time.
+    function fcDateOnly(v){
+      if(v === undefined || v === null || v === '') return null;
+      let s = String(v).trim();
+      if(!s) return null;
+
+      const hasTime = /T\d{2}:\d{2}/.test(s);
+      const hasTz = /(Z|[+\-]\d{2}:?\d{2})$/.test(s);
+      // If there's a time component but no explicit timezone/offset, treat it as UTC
+      // (per the source data contract: these timestamps are UTC).
+      if(hasTime && !hasTz) s = s + 'Z';
+
+      const d = new Date(s);
+      if(isNaN(d.getTime())){
+        // Not parseable as a real date/time — fall back to whatever date-looking
+        // prefix is there, unconverted, rather than silently dropping the value.
+        const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+        return m ? m[1] : null;
+      }
+      const fmt = new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Amsterdam', year:'numeric', month:'2-digit', day:'2-digit'});
+      return fmt.format(d); // en-CA gives YYYY-MM-DD
+    }
+
+    function fcDaysBetween(d1, d2){
+      if(!d1 || !d2) return Infinity;
+      const a = new Date(d1 + 'T00:00:00Z').getTime();
+      const b = new Date(d2 + 'T00:00:00Z').getTime();
+      return Math.abs(Math.round((a - b) / 86400000));
+    }
+
+    function fcSafeStr(v){ return v === undefined || v === null ? '' : String(v); }
+
+    // Mirrors getScheduledDeparture(Timestamps): *AtHov wins if present, else the plain field.
+    function fcScheduledDepartureDate(leg){
+      const ts = leg.timestamps || {};
+      const raw = (ts.scheduledDepartureTimeAtHov !== undefined && ts.scheduledDepartureTimeAtHov !== null)
+        ? ts.scheduledDepartureTimeAtHov : ts.scheduledDepartureTime;
+      return fcDateOnly(raw);
+    }
+    function fcScheduledArrivalDate(leg){
+      const ts = leg.timestamps || {};
+      const raw = (ts.scheduledArrivalTimeAtHov !== undefined && ts.scheduledArrivalTimeAtHov !== null)
+        ? ts.scheduledArrivalTimeAtHov : ts.scheduledArrivalTime;
+      return fcDateOnly(raw);
+    }
+
+    // Mirrors isCancelled(FlightLegData). Uses the same "today" as the rest of the
+    // checker (the AMS test date above) for consistency in this tool.
+    function fcIsCancelled(leg, todayStr){
+      if(!leg || leg.flightCancelled !== true) return false;
+      const ts = leg.timestamps;
+      if(!ts) return false;
+      const cancellationDate = fcDateOnly(ts.flightCancellationTime);
+      if(!cancellationDate) return false;
+
+      const arrIsAms = 'AMS' === fcSafeStr(leg.arrivalAirportCode).toUpperCase();
+      const depIsAms = 'AMS' === fcSafeStr(leg.departureAirportCode).toUpperCase();
+      const schedArr = fcScheduledArrivalDate(leg);
+      const schedDep = fcScheduledDepartureDate(leg);
+
+      function within14(isAms, scheduledDate){
+        if(!isAms || !scheduledDate) return false;
+        return fcDaysBetween(cancellationDate, scheduledDate) <= 14 && scheduledDate === todayStr;
+      }
+      return within14(arrIsAms, schedArr) || within14(depIsAms, schedDep);
+    }
+
+    // Parses a UTC(-offset) timestamp into a real JS Date (not just its date part),
+    // for computing delay durations. Same normalization rules as fcDateOnly.
+    function fcParseDateTime(v){
+      if(v === undefined || v === null || v === '') return null;
+      let s = String(v).trim();
+      if(!s) return null;
+      const hasTime = /T\d{2}:\d{2}/.test(s);
+      const hasTz = /(Z|[+\-]\d{2}:?\d{2})$/.test(s);
+      if(hasTime && !hasTz) s = s + 'Z';
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function fcFormatDuration(minutes){
+      const total = Math.round(minutes);
+      const h = Math.floor(total / 60);
+      const m = total % 60;
+      if(h > 0 && m > 0) return `${h} hour${h===1?'':'s'} ${m} minute${m===1?'':'s'}`;
+      if(h > 0) return `${h} hour${h===1?'':'s'}`;
+      return `${m} minute${m===1?'':'s'}`;
+    }
+
+    // Formats a JS Date as its Amsterdam local date/time, with the correct
+    // CET (winter) or CEST (summer) label — DST-aware.
+    function fcFormatAmsDateTime(d){
+      if(!d) return null;
+      const fmt = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Amsterdam', year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short'
+      });
+      return fmt.format(d);
+    }
+
+    // Mirrors isDelayed(Timestamps): checks every actual/estimated departure and
+    // arrival timestamp against its scheduled counterpart, and flags a delay if any
+    // of them is more than 1 minute later than scheduled — matching ONE_MINUTE_MILLIS.
+    // Reported ONLY from AMS's point of view: the departure-side delay is only
+    // surfaced if this leg actually departs from AMS, and the arrival-side delay
+    // is only surfaced if this leg actually arrives at AMS. A delay at the other,
+    // non-AMS end of the leg is not reported here.
+    function fcDelayInfo(leg){
+      const ts = leg.timestamps || {};
+      const depIsAms = 'AMS' === fcSafeStr(leg.departureAirportCode).toUpperCase();
+      const arrIsAms = 'AMS' === fcSafeStr(leg.arrivalAirportCode).toUpperCase();
+      const schedDep = fcParseDateTime(ts.scheduledDepartureTimeAtHov !== undefined && ts.scheduledDepartureTimeAtHov !== null ? ts.scheduledDepartureTimeAtHov : ts.scheduledDepartureTime);
+      const schedArr = fcParseDateTime(ts.scheduledArrivalTimeAtHov !== undefined && ts.scheduledArrivalTimeAtHov !== null ? ts.scheduledArrivalTimeAtHov : ts.scheduledArrivalTime);
+
+      const depCandidates = [
+        {field: 'estimatedBlockDepartureCTime', label: 'estimated block departure (C-time)', v: fcParseDateTime(ts.estimatedBlockDepartureCTime)},
+        {field: 'estimatedBlockDepartureETime', label: 'estimated block departure (E-time)', v: fcParseDateTime(ts.estimatedBlockDepartureETime)},
+        {field: 'actualBlockDepartureTime', label: 'actual block departure', v: fcParseDateTime(ts.actualBlockDepartureTime)},
+        {field: 'estimatedDepartureTime', label: 'estimated departure', v: fcParseDateTime(ts.estimatedDepartureTime)}
+      ];
+      const arrCandidates = [
+        {field: 'actualArrivalTime', label: 'actual arrival', v: fcParseDateTime(ts.actualArrivalTime)},
+        {field: 'estimatedArrivalTime', label: 'estimated arrival', v: fcParseDateTime(ts.estimatedArrivalTime)}
+      ];
+
+      let depDelayMin = null, depLabel = null, depField = null, depValue = null;
+      if(depIsAms){
+        depCandidates.forEach(c => {
+          if(c.v && schedDep){
+            const diffMin = (c.v.getTime() - schedDep.getTime()) / 60000;
+            if(diffMin > 1 && (depDelayMin === null || diffMin > depDelayMin)){
+              depDelayMin = diffMin; depLabel = c.label; depField = c.field; depValue = c.v;
+            }
+          }
+        });
+      }
+
+      let arrDelayMin = null, arrLabel = null, arrField = null, arrValue = null;
+      if(arrIsAms){
+        arrCandidates.forEach(c => {
+          if(c.v && schedArr){
+            const diffMin = (c.v.getTime() - schedArr.getTime()) / 60000;
+            if(diffMin > 1 && (arrDelayMin === null || diffMin > arrDelayMin)){
+              arrDelayMin = diffMin; arrLabel = c.label; arrField = c.field; arrValue = c.v;
+            }
+          }
+        });
+      }
+
+      return {
+        amsRelevant: depIsAms || arrIsAms, depIsAms, arrIsAms,
+        delayed: depDelayMin !== null || arrDelayMin !== null,
+        depDelayMin, depLabel, depField, depValueAms: fcFormatAmsDateTime(depValue),
+        arrDelayMin, arrLabel, arrField, arrValueAms: fcFormatAmsDateTime(arrValue)
+      };
+    }
+
+    // Runs one flight leg through the same ordered checks as the Java method,
+    // stopping at the first failing check (matching the real "first reason wins" logic).
+    function fcEvaluateLeg(leg, allowedCarriers, excludedAirports, todayStr){
+      const yesterdayStr = fcAddDays(todayStr, -1);
+      const carrier = fcSafeStr(leg.carrier).toUpperCase();
+      const flightNumber = leg.flightNumber;
+      const depCode = fcSafeStr(leg.departureAirportCode).toUpperCase();
+      const arrCode = fcSafeStr(leg.arrivalAirportCode).toUpperCase();
+
+      const checks = [];
+      let failed = false;
+      let failReason = '';
+
+      // 1. Allowed customer airline
+      const carrierOk = allowedCarriers.includes(carrier);
+      checks.push({
+        title: 'Carrier is one of the customer\'s airlines',
+        ok: carrierOk,
+        skipped: false,
+        desc: carrierOk
+          ? `<code>${escapeHtml(carrier || '(blank)')}</code> is in the allowed list: <code>${escapeHtml(allowedCarriers.join(', '))}</code>.`
+          : `<code>${escapeHtml(carrier || '(blank)')}</code> is <b>not</b> in the allowed list (<code>${escapeHtml(allowedCarriers.join(', '))}</code>), so this flight is not one of the customer's airlines.`
+      });
+      if(!carrierOk && !failed){ failed = true; failReason = 'The carrier is not one of the customer\'s allowed airlines.'; }
+
+      // 2. KL flight number >= 9000 excluded
+      const isHighKl = carrier === 'KL' && typeof flightNumber === 'number' && flightNumber >= 9000;
+      checks.push({
+        title: 'Not a KL flight numbered 9000 or above',
+        ok: !isHighKl,
+        skipped: !carrierOk,
+        desc: !carrierOk
+          ? 'Skipped — already excluded by the carrier check above.'
+          : isHighKl
+            ? `This is a KL flight with flight number <code>${escapeHtml(fcSafeStr(flightNumber))}</code>, which is 9000 or higher, so it's excluded by design (these are typically non-passenger / placeholder flight numbers).`
+            : carrier === 'KL'
+              ? `KL flight number <code>${escapeHtml(fcSafeStr(flightNumber))}</code> is below 9000, so it's fine.`
+              : 'Not a KL flight, so this rule doesn\'t apply.'
+      });
+      if(!failed && isHighKl){ failed = true; failReason = 'It\'s a KL flight with flight number 9000 or above, which is always excluded.'; }
+
+      // 3. Either departure or arrival must be AMS
+      const touchesAms = depCode === 'AMS' || arrCode === 'AMS';
+      const check3Skipped = !carrierOk || isHighKl;
+      checks.push({
+        title: 'Flight departs from or arrives at AMS',
+        ok: touchesAms,
+        skipped: check3Skipped,
+        desc: check3Skipped
+          ? 'Skipped — already excluded by a check above.'
+          : touchesAms
+            ? `Departure <code>${escapeHtml(depCode||'(blank)')}</code> / arrival <code>${escapeHtml(arrCode||'(blank)')}</code> — at least one is AMS.`
+            : `Departure <code>${escapeHtml(depCode||'(blank)')}</code> and arrival <code>${escapeHtml(arrCode||'(blank)')}</code> — neither is AMS, so this flight isn't relevant to Amsterdam.`
+      });
+      if(!failed && !touchesAms){ failed = true; failReason = 'Neither the departure nor the arrival airport is AMS.'; }
+
+      // 4. Cancelled + excluded airport
+      const cancelled = fcIsCancelled(leg, todayStr);
+      const excludedHit = cancelled && (excludedAirports.includes(depCode) || excludedAirports.includes(arrCode));
+      const check4Skipped = !carrierOk || isHighKl || !touchesAms;
+      checks.push({
+        title: 'Not a cancelled flight at an excluded airport',
+        ok: !excludedHit,
+        skipped: check4Skipped,
+        desc: check4Skipped
+          ? 'Skipped — already excluded by a check above.'
+          : !cancelled
+            ? 'This flight isn\'t flagged as cancelled (or is missing cancellation details), so this rule doesn\'t apply.'
+            : excludedHit
+              ? `This flight is cancelled, and its departure (<code>${escapeHtml(depCode||'(blank)')}</code>) or arrival (<code>${escapeHtml(arrCode||'(blank)')}</code>) airport is on the excluded list (<code>${escapeHtml(excludedAirports.join(', ')||'(none)')}</code>).`
+              : `This flight is cancelled, but neither its departure nor arrival airport is on the excluded list, so it's kept.`
+      });
+      if(!failed && excludedHit){ failed = true; failReason = 'It\'s a cancelled flight and its departure/arrival airport is on the excluded list.'; }
+
+      // 5. Relevant to today in AMS timezone
+      const depDate = fcScheduledDepartureDate(leg);
+      const arrDate = fcScheduledArrivalDate(leg);
+      const estimatedArrDate = fcDateOnly(leg.timestamps ? leg.timestamps.estimatedArrivalTime : null);
+      const headDate = fcDateOnly(leg.headStationDepartureDateUTC);
+
+      const relevant =
+        (yesterdayStr === headDate && todayStr === estimatedArrDate && arrCode === 'AMS') ||
+        (yesterdayStr === headDate && todayStr === arrDate && arrCode === 'AMS') ||
+        (todayStr === headDate && todayStr === depDate && arrCode === 'AMS' && todayStr === arrDate) ||
+        (todayStr === headDate && todayStr === depDate && depCode === 'AMS');
+
+      const check5Skipped = !carrierOk || isHighKl || !touchesAms || excludedHit;
+      checks.push({
+        title: 'Scheduled for "today" in Amsterdam',
+        ok: relevant,
+        skipped: check5Skipped,
+        desc: check5Skipped
+          ? 'Skipped — already excluded by a check above.'
+          : relevant
+            ? `Yes — the flight's dates (converted from UTC to Amsterdam local time) line up with today (<code>${escapeHtml(todayStr)}</code>) or yesterday feeding into today for an AMS arrival, as expected.`
+            : `No — none of the "today in Amsterdam" patterns matched. All dates below are the source UTC timestamps <b>after converting to Amsterdam local time</b>: head-station departure date <code>${escapeHtml(headDate||'(missing)')}</code>, scheduled departure date <code>${escapeHtml(depDate||'(missing)')}</code>, scheduled arrival date <code>${escapeHtml(arrDate||'(missing)')}</code>, estimated arrival date <code>${escapeHtml(estimatedArrDate||'(missing)')}</code> — compared against today <code>${escapeHtml(todayStr)}</code> / yesterday <code>${escapeHtml(yesterdayStr)}</code> (also Amsterdam local dates).`
+      });
+      if(!failed && !relevant){
+        failed = true;
+        failReason = `It's not scheduled for "today" in Amsterdam. Head-station departure date (converted from UTC to Amsterdam time) is ${headDate||'missing'}, but today is ${todayStr} (yesterday ${yesterdayStr}) — the dates don't line up with any of the expected patterns.`;
+      }
+
+      // Extra info — cancellation and delay status, computed using the SAME
+      // methods as the real code (isCancelled(), and isDelayed()'s six
+      // scheduled-vs-actual/estimated comparisons) — not a separate rule.
+      // "cancelled" here is the exact same isCancelled() result already used above
+      // for check 4 (14-day window, must be AMS arrival/departure, must be today).
+      const delayInfo = fcDelayInfo(leg);
+
+      return {leg, checks, passed: !failed, failReason, isCancelledFlag: cancelled, delayInfo};
+    }
+
+    function fcFlightLabel(leg, idx){
+      const carrier = fcSafeStr(leg.carrier).toUpperCase() || '??';
+      const num = leg.flightNumber !== undefined && leg.flightNumber !== null ? leg.flightNumber : '????';
+      const dep = fcSafeStr(leg.departureAirportCode).toUpperCase() || '???';
+      const arr = fcSafeStr(leg.arrivalAirportCode).toUpperCase() || '???';
+      return `${carrier}${num} — ${dep} → ${arr}`;
+    }
+
+    function fcExtractLegs(text){
+      let parsed;
+      try{ parsed = JSON.parse(text); }
+      catch(e){ throw new Error('That doesn\'t look like valid JSON: ' + e.message); }
+
+      let legs;
+      if(Array.isArray(parsed)){
+        legs = parsed;
+      } else if(parsed && typeof parsed === 'object'){
+        if(Array.isArray(parsed.flightLegData)) legs = parsed.flightLegData;
+        else legs = [parsed]; // single flight object
+      } else {
+        throw new Error('Expected a flight object, an array of flights, or a { "flightLegData": [...] } response.');
+      }
+      if(!legs.length) throw new Error('No flights were found in that JSON.');
+      return legs;
+    }
+
+    // Mirrors the dedup step (carrier + flightNumber + headStationDepartureDate + departureAirportCode + suffix)
+    function fcDedupe(legs){
+      const seen = new Set();
+      const kept = [];
+      let removed = 0;
+      legs.forEach(leg => {
+        const key = [
+          fcSafeStr(leg.carrier), fcSafeStr(leg.flightNumber),
+          fcDateOnly(leg.headStationDepartureDateUTC) || 'UNKNOWN',
+          fcSafeStr(leg.departureAirportCode) || 'UNKNOWN',
+          leg.suffix !== undefined && leg.suffix !== null ? fcSafeStr(leg.suffix) : 'UNKNOWN'
+        ].join('-');
+        if(seen.has(key)){ removed++; }
+        else { seen.add(key); kept.push(leg); }
+      });
+      return {kept, removed};
+    }
+
+    function fcSetStatus(msg, type){
+      fcStatus.textContent = msg;
+      fcStatus.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function fcRender(results, dupRemoved){
+      fcResultsPanel.style.display = 'block';
+
+      fcDupNote.innerHTML = dupRemoved > 0
+        ? `<div class="fc-dup-note">ℹ️ ${dupRemoved} duplicate flight${dupRemoved===1?'':'s'} (same carrier, flight number, departure date, departure airport and suffix) ${dupRemoved===1?'was':'were'} ignored before checking, just like the real filter does.</div>`
+        : '';
+
+      fcResultsList.innerHTML = results.map((r, i) => {
+        const label = fcFlightLabel(r.leg, i);
+        const banner = r.passed
+          ? `<div class="fc-summary-banner pass"><div class="fc-badge">✓ Will be processed</div>
+              <div class="fc-summary-text">This flight <b>passed every check</b> and will move forward for further processing.</div></div>`
+          : `<div class="fc-summary-banner fail"><div class="fc-badge">✕ Will NOT be processed</div>
+              <div class="fc-summary-text">This flight was <b>filtered out</b>. Reason: ${escapeHtml(r.failReason)}</div></div>`;
+
+        const rows = r.checks.map(c => {
+          const iconClass = c.skipped ? 'skip' : (c.ok ? 'ok' : 'bad');
+          const icon = c.skipped ? '–' : (c.ok ? '✓' : '✕');
+          return `<div class="fc-check-row">
+            <div class="fc-check-icon ${iconClass}">${icon}</div>
+            <div class="fc-check-body">
+              <div class="fc-check-title">${escapeHtml(c.title)}</div>
+              <div class="fc-check-desc">${c.desc}</div>
+            </div>
+          </div>`;
+        }).join('');
+
+        // ---- Extra info: cancelled / delayed (AMS point of view only) ----
+        const di = r.delayInfo;
+        const delayParts = [];
+        if(di.depDelayMin !== null){
+          delayParts.push(`<div class="fc-delay-line">Departure from AMS — attribute <code>${escapeHtml(di.depField)}</code> = <code>${escapeHtml(di.depValueAms)}</code> — delayed by <b>${fcFormatDuration(di.depDelayMin)}</b></div>`);
+        }
+        if(di.arrDelayMin !== null){
+          delayParts.push(`<div class="fc-delay-line">Arrival into AMS — attribute <code>${escapeHtml(di.arrField)}</code> = <code>${escapeHtml(di.arrValueAms)}</code> — delayed by <b>${fcFormatDuration(di.arrDelayMin)}</b></div>`);
+        }
+
+        let delayedDesc;
+        let delayedNotApplicable = false;
+        if(r.isCancelledFlag){
+          delayedNotApplicable = true;
+          delayedDesc = 'Not applicable — this flight is cancelled, so a delay reading isn\'t meaningful.';
+        } else if(!di.amsRelevant){
+          delayedNotApplicable = true;
+          delayedDesc = 'Not applicable — this flight neither departs from nor arrives at AMS, so there\'s no AMS-relevant delay to report.';
+        } else if(di.delayed){
+          const side = di.depIsAms && di.arrIsAms ? 'departure from and arrival into AMS' : (di.depIsAms ? 'its departure from AMS' : 'its arrival into AMS');
+          delayedDesc = `Yes — delayed on ${side}. All times below are in Amsterdam local time (CET/CEST):`;
+        } else {
+          const side = di.depIsAms && di.arrIsAms ? 'departure from or arrival into AMS' : (di.depIsAms ? 'departure from AMS' : 'arrival into AMS');
+          delayedDesc = `No — on schedule for its ${side} (or no delay of more than a minute detected).`;
+        }
+
+        const cancelledRow = `<div class="fc-status-row">
+          <div class="fc-status-icon ${r.isCancelledFlag?'warn':'ok'}">${r.isCancelledFlag?'✕':'✓'}</div>
+          <div class="fc-check-body">
+            <div class="fc-check-title">Cancelled</div>
+            <div class="fc-check-desc">${r.isCancelledFlag ? 'Yes — this flight is cancelled (per the same rule used in check 4: flagged cancelled, cancellation happened within 14 days of the scheduled time, and that scheduled AMS arrival or departure falls on today).' : 'No — not cancelled by that rule (either not flagged cancelled, or the cancellation/date/AMS conditions above aren\'t all met).'}</div>
+          </div>
+        </div>`;
+        const delayedRow = `<div class="fc-status-row">
+          <div class="fc-status-icon ${delayedNotApplicable ? 'skip' : (di.delayed?'warn':'ok')}">${delayedNotApplicable ? '–' : (di.delayed?'✕':'✓')}</div>
+          <div class="fc-check-body">
+            <div class="fc-check-title">Delayed <span style="font-weight:500;color:var(--muted);text-transform:none;">(from AMS's point of view)</span></div>
+            <div class="fc-check-desc">${delayedDesc}</div>
+            ${(!delayedNotApplicable && di.delayed) ? delayParts.join('') : ''}
+          </div>
+        </div>`;
+        const statusCard = `<div class="fc-status-card">
+          <div class="fc-status-title">ℹ️ Flight status</div>
+          ${cancelledRow}
+          ${delayedRow}
+        </div>`;
+
+        return `<div class="fc-flight-card">
+          <div class="fc-flight-head">
+            <div>
+              <div class="fc-flight-title">${escapeHtml(label)}</div>
+              <div class="fc-flight-sub">Flight ${i+1} of ${results.length}</div>
+            </div>
+            <div class="fc-pill ${r.passed?'pass':'fail'}">${r.passed?'Pass':'Fail'}</div>
+          </div>
+          ${banner}
+          <div class="fc-checklist">${rows}</div>
+          ${statusCard}
+        </div>`;
+      }).join('');
+    }
+
+    function fcRun(){
+      const text = fcInput.value.trim();
+      if(!text){ fcSetStatus('Paste some flight JSON first.', 'error'); return; }
+
+      const allowedCarriers = FC_ALLOWED_CARRIERS;
+      const excludedAirports = FC_EXCLUDED_AIRPORTS;
+      const todayStr = fcAmsToday();
+
+      try{
+        const rawLegs = fcExtractLegs(text);
+        const {kept, removed} = fcDedupe(rawLegs);
+        const results = kept.map(leg => fcEvaluateLeg(leg, allowedCarriers, excludedAirports, todayStr));
+        fcRender(results, removed);
+        const passCount = results.filter(r => r.passed).length;
+        fcSetStatus(`Checked ${results.length} flight${results.length===1?'':'s'} — ${passCount} will be processed, ${results.length-passCount} filtered out.`, 'ok');
+      }catch(e){
+        fcResultsPanel.style.display = 'none';
+        fcSetStatus('⚠ ' + e.message, 'error');
+      }
+    }
+
+    $('fcCheckBtn').addEventListener('click', fcRun);
+
+    $('fcSampleBtn').addEventListener('click', () => {
+      const today = fcAmsToday();
+      const sample = fcBuildSample(today);
+      fcInput.value = JSON.stringify(sample, null, 2);
+      fcSetStatus('Sample loaded — one flight should pass, one should fail (wrong carrier). Click "Check flight(s)".', '');
+    });
+
+    $('fcClearBtn').addEventListener('click', () => {
+      fcInput.value = '';
+      fcResultsPanel.style.display = 'none';
+      fcSetStatus('', '');
+    });
+  })();
 
 })();
 </script>
