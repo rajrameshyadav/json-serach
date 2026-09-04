@@ -1580,11 +1580,24 @@
           delayedDesc = `No — on schedule for its ${side} (or no delay of more than a minute detected).`;
         }
 
+        // The two rows are mutually exclusive: a genuinely delayed flight is, by
+        // definition, still operating — so its cancellation status is reported as
+        // "not applicable" rather than a plain Yes/No when a real delay was found.
+        const cancelledNotApplicable = di.delayed;
+        let cancelledDesc;
+        if(cancelledNotApplicable){
+          cancelledDesc = 'Not applicable — this flight shows a delay, so it\'s still operating and cancellation status isn\'t relevant to report here.';
+        } else {
+          cancelledDesc = r.isCancelledFlag
+            ? 'Yes — this flight is cancelled (per the same rule used in check 4: flagged cancelled, cancellation happened within 14 days of the scheduled time, and that scheduled AMS arrival or departure falls on today).'
+            : 'No — not cancelled by that rule (either not flagged cancelled, or the cancellation/date/AMS conditions above aren\'t all met).';
+        }
+
         const cancelledRow = `<div class="fc-status-row">
-          <div class="fc-status-icon ${r.isCancelledFlag?'warn':'ok'}">${r.isCancelledFlag?'✕':'✓'}</div>
+          <div class="fc-status-icon ${cancelledNotApplicable ? 'skip' : (r.isCancelledFlag?'warn':'ok')}">${cancelledNotApplicable ? '–' : (r.isCancelledFlag?'✕':'✓')}</div>
           <div class="fc-check-body">
             <div class="fc-check-title">Cancelled</div>
-            <div class="fc-check-desc">${r.isCancelledFlag ? 'Yes — this flight is cancelled (per the same rule used in check 4: flagged cancelled, cancellation happened within 14 days of the scheduled time, and that scheduled AMS arrival or departure falls on today).' : 'No — not cancelled by that rule (either not flagged cancelled, or the cancellation/date/AMS conditions above aren\'t all met).'}</div>
+            <div class="fc-check-desc">${cancelledDesc}</div>
           </div>
         </div>`;
         const delayedRow = `<div class="fc-status-row">
